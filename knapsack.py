@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from random import randint
 
@@ -9,6 +11,9 @@ class Item:
     id: int
     value: int
     weight: int
+
+    def __lt__(self, other: Item):
+        return self.id < other.id
 
 
 class Individual:
@@ -35,13 +40,30 @@ class Individual:
             self.fitness = score
 
 
-@dataclass
 class Population:
-    individuals: list[Individual]
+    def __init__(
+            self,
+            individuals: list[Individual],
+            items: list[Item]) -> None:
+        assert len(individuals[0].genome) == len(items)
+        self.individuals = individuals
+        self.items = sorted(items)
 
     def calc_pop_fitness(self, items: list[Item], max_weight: int):
         for individual in self.individuals:
             individual.calculate_fitness(items, max_weight)
+
+    def selection():
+        raise NotImplemented
+    
+    def mutation():
+        raise NotImplemented
+
+    def crossover():
+        raise NotImplemented
+
+    def __repr__(self) -> str:
+        return f"Population(individuals={self.individuals}"
 
 
 def generate_items(n: int, random: bool = False) -> list[Item]:
@@ -52,9 +74,10 @@ def generate_items(n: int, random: bool = False) -> list[Item]:
 
 def create_initial_population(
         number_individuals: int,
-        genome_lenght: int) -> Population:
+        genome_lenght: int,
+        items: list[Item]) -> Population:
     return Population([Individual(genome_lenght)
-                       for _ in range(number_individuals)])
+                       for _ in range(number_individuals)], items)
 
 
 if __name__ == "__main__":
@@ -67,7 +90,7 @@ if __name__ == "__main__":
     ind = Individual(10)
     # print(ind)
 
-    init_pop = create_initial_population(5, 10)
+    init_pop = create_initial_population(5, 10, items)
     print(init_pop)
     init_pop.calc_pop_fitness(random_items, WEIGHT_LIMIT)
     print(init_pop)
