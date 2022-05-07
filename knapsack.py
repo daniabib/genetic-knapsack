@@ -59,7 +59,7 @@ class Population:
         for individual in self.individuals:
             individual.calculate_fitness(items, max_weight)
 
-    def selection(self):
+    def selection(self) -> None:
         """Uses fitness proportionate selection (FPS)
 
         Each time the wheel is turned, the selection point is used to choose a single individual from the entire population. The wheel is then turned again to select the next individual until we have enough individuals selected to fill the next generation. As a result, the same individual can be picked several times.
@@ -76,7 +76,7 @@ class Population:
         for _ in range(len(self.individuals)):
             chosen_inds.append(np.random.choice(
                 self.individuals, size=2, p=probs)[0])
-        print(chosen_inds)
+        self.individuals = chosen_inds
 
     def mutation():
         raise NotImplemented
@@ -106,9 +106,10 @@ if __name__ == "__main__":
     items = generate_items(10, random=True)
 
     init_pop = create_initial_population(5, 10, items)
-    # print(init_pop)
+    print(init_pop)
+    
     init_pop.calc_pop_fitness(items, WEIGHT_LIMIT)
     # print(init_pop)
 
     init_pop.selection()
-    # print(init_pop)
+    print(init_pop)
