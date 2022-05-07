@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from random import randint
+import numpy as np
 
 WEIGHT_LIMIT = 55
 
@@ -24,6 +25,8 @@ class Individual:
         self.fitness: int = 0
 
     def __repr__(self) -> str:
+        if hasattr(self, "select_prob"):
+            return f"Individual({self.genome}, fitness={self.fitness}, select_prob={self. select_prob :.3f})"
         return f"Individual({self.genome}, fitness={self.fitness})"
 
     def calculate_fitness(
@@ -39,6 +42,9 @@ class Individual:
         else:
             self.fitness = score
 
+    def calculate_selection_prob(self, pop_fitness: int):
+        self.select_prob = self.fitness / pop_fitness
+
 
 class Population:
     def __init__(
@@ -53,9 +59,25 @@ class Population:
         for individual in self.individuals:
             individual.calculate_fitness(items, max_weight)
 
-    def selection():
-        raise NotImplemented
-    
+    def selection(self):
+        """Uses fitness proportionate selection (FPS)
+
+        Each time the wheel is turned, the selection point is used to choose a single individual from the entire population. The wheel is then turned again to select the next individual until we have enough individuals selected to fill the next generation. As a result, the same individual can be picked several times.
+        """
+        total_fitness = sum(
+            individual.fitness for individual in self.individuals)
+        probs = []
+        for individual in self.individuals:
+            individual.calculate_selection_prob(total_fitness)
+            probs.append(individual.select_prob)
+        assert np.isclose(sum(probs), 1.0, rtol=1e-05,
+                          atol=1e-08, equal_nan=False)
+        chosen_inds = []
+        for _ in range(len(self.individuals)):
+            chosen_inds.append(np.random.choice(
+                self.individuals, size=2, p=probs)[0])
+        print(chosen_inds)
+
     def mutation():
         raise NotImplemented
 
@@ -81,26 +103,12 @@ def create_initial_population(
 
 
 if __name__ == "__main__":
-    items = generate_items(10)
-    # print(items)
-
-    random_items = generate_items(10, random=True)
-    # print(random_items)
-
-    ind = Individual(10)
-    # print(ind)
+    items = generate_items(10, random=True)
 
     init_pop = create_initial_population(5, 10, items)
-    print(init_pop)
-    init_pop.calc_pop_fitness(random_items, WEIGHT_LIMIT)
-    print(init_pop)
-    # print(calculate_fitness(ind, LIMIT, random_items))
+    # print(init_pop)
+    init_pop.calc_pop_fitness(items, WEIGHT_LIMIT)
+    # print(init_pop)
 
-    ind.calculate_fitness(items, WEIGHT_LIMIT)
-    # print(ind)
-
-    # ind2 = Individual(10)
-    # ind2.genome = "1111111111"
-    # print(ind2)
-    # ind2.calculate_fitness(items, WEIGHT_LIMIT)
-    # print(ind2)
+    init_pop.selection()
+    # print(init_pop)
