@@ -75,17 +75,34 @@ class Population:
         chosen_inds = []
         for _ in range(len(self.individuals)):
             chosen_inds.append(np.random.choice(
-                self.individuals, size=2, p=probs)[0])
+                self.individuals, size=1, p=probs)[0])
         self.individuals = chosen_inds
+
+    def crossover(self, crossover_prob: int = 0.55):
+        """Uses single-point crossover"""
+
+        genome_length = len(self.individuals[0].genome)
+        for i in range(0, len(self.individuals) - 1, 2):
+            print(i)
+            if np.random.random() < crossover_prob:
+                crossover_point = np.random.randint(0, genome_length - 1)
+                # print("Crossover point:", crossover_point)
+                # print("Parent 1:", self.individuals[i].genome)
+                # print("Parent 2:", self.individuals[i+1].genome)
+                copied_gene = self.individuals[i].genome[crossover_point:]
+                self.individuals[i].genome = self.individuals[i].genome[:crossover_point] + \
+                    self.individuals[i+1].genome[crossover_point:]
+
+                self.individuals[i+1].genome = self.individuals[i+1].genome[:crossover_point] + \
+                    copied_gene
+                # print("Children 1:", self.individuals[i].genome)
+                # print("Children 2:", self.individuals[i+1].genome)
 
     def mutation():
         raise NotImplemented
 
-    def crossover():
-        raise NotImplemented
-
     def __repr__(self) -> str:
-        return f"Population(individuals={self.individuals}"
+        return f"Population(individuals={self.individuals})"
 
 
 def generate_items(n: int, random: bool = False) -> list[Item]:
@@ -105,11 +122,12 @@ def create_initial_population(
 if __name__ == "__main__":
     items = generate_items(10, random=True)
 
-    init_pop = create_initial_population(5, 10, items)
+    init_pop = create_initial_population(13, 10, items)
     print(init_pop)
-    
+
     init_pop.calc_pop_fitness(items, WEIGHT_LIMIT)
     # print(init_pop)
 
     init_pop.selection()
-    print(init_pop)
+    # print(init_pop)
+    init_pop.crossover(crossover_prob=.9999)
