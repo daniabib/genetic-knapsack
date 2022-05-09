@@ -45,6 +45,15 @@ class Individual:
     def calculate_selection_prob(self, pop_fitness: int):
         self.select_prob = self.fitness / pop_fitness
 
+    def mutation(self, mutation_prob: int = 0.05):
+        """Applies flip bit mutation"""
+        if np.random.random() < mutation_prob:
+            chosen_gene = np.random.choice(len(self.genome))
+            pre_mutation_left_gene = self.genome[:chosen_gene]
+            pre_mutation_right_gene = self.genome[chosen_gene + 1:]
+            mutate_gene = "1" if self.genome[chosen_gene] == "0" else "0"
+            self.genome = pre_mutation_left_gene + mutate_gene + pre_mutation_right_gene
+
 
 class Population:
     def __init__(
@@ -98,9 +107,6 @@ class Population:
                 # print("Children 1:", self.individuals[i].genome)
                 # print("Children 2:", self.individuals[i+1].genome)
 
-    def mutation():
-        raise NotImplemented
-
     def __repr__(self) -> str:
         return f"Population(individuals={self.individuals})"
 
@@ -131,3 +137,4 @@ if __name__ == "__main__":
     init_pop.selection()
     # print(init_pop)
     init_pop.crossover(crossover_prob=.9999)
+
